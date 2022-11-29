@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>case_study</title>
+
+</head>
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+    canvas {
+        background-image: url("https://f27-zpc.zdn.vn/7210194121399462463/14490674d96700395976.jpg");
+        background-size: 600px 500px;
+    }
+</style>
+<body>
+<canvas id="myCanvas" width="600" height="500" style="border: 4px #DBA39A solid; margin: 50px 400px 50px 400px" ></canvas>
+
+<script>
+  let canvas = document.getElementById("myCanvas"); // khai bao bien
+  let ctx = canvas.getContext("2d");
+  let x = canvas.width / 2;
+  let y = canvas.height - 100;
+  let dx = 2;
+  let dy = -2;
+  let ballRadius = 10;
+  let paddleHeight = 15;
+  let paddleWidth = 100  ;
+  let paddleX = (canvas.width - paddleWidth)/2;
+  let paddleY = (canvas.height - paddleHeight) - 20;
+  let moveRight = false;
+  let moveLeft = false;
+  let score = 0;
+  let gameSpeed = 20;
+  let interval =  setInterval(draw, gameSpeed);
+  function draw(){ // ham
+      let ball = new Ball();
+      let paddle = new Paddle(paddleWidth, paddleHeight,paddleX,paddleY);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ball.move(); //truy cap vao doi tuong
+      ball.changeDirection();
+      ball.drawBall();
+      paddle.move();
+      paddle.drawPaddle();
+      drawName();
+      drawScore();
+
+
+      score++;
+  }
+  let Ball = function (){ //doi tuong
+      this.x = x;
+      this.y = y;
+      this.ballRadius = ballRadius;
+      this.gameSpeed = gameSpeed;
+
+      this.move = function (){ //phuong thuc
+          x += dx;
+          y += dy;
+      }
+      this.changeDirection = function() {
+          if (y + dy < ballRadius){
+              dy = -dy;
+              //dai dien phan xa canvas 上です。。。
+          }else if (y + dy > paddleY - ballRadius ){
+              if(x > paddleX && x < paddleX + paddleWidth){
+                  dy = -dy;
+              } else {
+                  alert("game over");
+                  document.location.reload();
+                  clearInterval (interval);
+              }
+
+          }　//右と左
+          if ( x + dx > canvas.width - ballRadius){
+              dx = -dx;
+          }
+          if(x + dx < ballRadius){
+              dx = -dx;
+          }
+      }
+      this.drawBall = function (){
+          ctx.beginPath();
+          ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+          ctx.fillStyle = "#5F8D4E";
+          ctx.fill();
+          ctx.closePath();
+      }
+  }
+
+ let Paddle = function (){
+      this.width = paddleWidth; // thuoc tinh
+      this.height = paddleHeight;
+      this.paddleX = paddleX;
+      this.paddleY = paddleY;
+
+      this.move = function (){
+          if (moveRight){
+              paddleX = Math.min(paddleX + 7, canvas.width - paddleWidth);
+          }else  if ( moveLeft){
+              paddleX = Math.max(paddleX - 7, 0);
+          }
+      }
+      this.drawPaddle = function (){
+         ctx.beginPath();
+         ctx.rect(paddleX, paddleY,paddleWidth,paddleHeight);
+         ctx.fillStyle = '#000000';
+         ctx.fill();
+         ctx.closePath();
+
+     }
+ }
+
+
+
+
+  document.addEventListener("keydown", keyDownHandler, false); //bat su kien
+  document.addEventListener("keyup", keyUpHandler, false);
+  document.addEventListener("mousemove", mouseMoveHandler, false);
+  function keyDownHandler(e){
+    if(e.key === "Right" || e.key === "ArrowRight"){
+      moveRight = true;
+    } else if (e.key === "Left" || e.key === "ArrowLeft") {
+      moveLeft = true;
+    }
+  }
+  function keyUpHandler(e){
+    if(e.key === "Right" || e.key === "ArrowRight"){
+      moveRight = false;
+    } else if (e.key === "Left" || e.key === "ArrowLeft"){
+      moveLeft = false;
+    }
+  }
+  function mouseMoveHandler(e){
+    let relativeX = e.clientX - canvas.offsetLeft;
+    if (relativeX > 0 && relativeX < canvas.width){
+      paddleX = relativeX - paddleWidth / 2;
+    }
+  }
+  function drawName(){
+    ctx.font="15px Comic Sans MS";
+    ctx.fillStyle = "#FFBF00";
+    ctx.textAlign = "center";
+    ctx.fillText("可愛い豚肉", canvas.width - 120, 25);
+  }
+
+  function drawScore(){
+    ctx.font="15px Comic Sans MS";
+    ctx.fillStyle = "#FFBF00";
+    ctx.textAlign = "center";
+    ctx.fillText("your score = " + score , 20, 25);
+  }
+
+</script>
+</body>
+</html>
